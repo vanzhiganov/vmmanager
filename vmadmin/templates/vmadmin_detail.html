@@ -1,0 +1,110 @@
+{%extends 'vmadmin_base.html'%}
+{%block base%}
+<style type="text/css">
+	.detail {
+	  margin-right: 0;
+	  margin-left: 0;
+	  /*background-color: #fff;*/
+	  border-color: #080808;
+	  border-width: 1px;
+	  border-radius: 4px 4px 0 0;
+	  /*-webkit-box-shadow: none;*/
+	  padding:20px;
+	  box-shadow: none;
+	}
+</style>
+<div role="form" class="form-horizontal" > 
+<div class="detail">
+
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Name</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.name}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Host</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.host}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Image</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.image_name}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">cpu</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.vcpu}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">memory</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.mem}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Creator</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.creator}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">create time</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.create_time}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">vlan</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.vlan}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">br</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.br}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">mac</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.mac}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">ipv4</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.ipv4}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">ceph host</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.ceph_host}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">ceph pool</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.ceph_pool}}</span>
+	    </div>
+	</div>
+</div>
+<div class="detail">
+	{%for k,v in vminfo.items%}
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">{{k}}</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{v}}</span>
+	    </div>
+	</div>
+
+	{%endfor%}
+</div>
+</div>
+{%endblock%}

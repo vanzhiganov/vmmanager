@@ -1,0 +1,62 @@
+{%extends 'interclient_base.html'%}
+{%block base%}
+
+<table class="table">
+	<tr>
+		<th>UUID</th>
+		<th>镜像</th>
+		<th>CPU数</th>
+		<th>内存</th>
+		<!-- <th>Host</th> -->
+		<th>IP地址</th>
+		<th>起始时间</th>
+		<th>到期时间</th>
+		<th>状态</th>
+		<th>任务</th>
+		<th></th>
+	</tr>
+{%for vm in vms%}
+<tr id="tr_{{vm.vmid}}">
+	<td><a href="/interclient/vm/detail/?vmid={{vm.vmid}}" title="{{vm.vmid}}">{{vm.vmid|slice:":6"}}</a></td>
+
+	<td>{{vm.image}}</td>
+	<td>{{vm.vm.vcpu}}</td>
+	<td>{{vm.vm.mem}} KB</td>
+
+	<!-- <td>{{vm.vm.host.ipv4}}</td> -->
+	<td>{{vm.vm.ipv4}}</td>
+	<td>{{vm.start_time|date:'Y-m-d'}}</td>
+	<td>{{vm.end_time|date:'Y-m-d'}}</td>
+	<td><span id="vm_status_{{vm.vmid}}"></span></td>
+	<td><span id="vm_task_{{vm.vmid}}"></span></td>
+	<td>
+		<!-- Split button -->
+		<div class="btn-group">
+		  <button type="button" class="btn btn-sm btn-success" onclick="window.open('/interclient/vm/novnc/?vmid={{vm.vmid}}')">VNC</button>
+		  <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <span class="caret"></span>
+		    <span class="sr-only">Toggle Dropdown</span>
+		  </button>
+		  <ul class="dropdown-menu" style="min-width: 0px;">
+		    <li><button class="btn btn-xs btn-primary" style="width:100px;margin-top:2px" onclick="vm_start('/interclient/vm/action/', '{{vm.vmid}}')">启动</button></li>
+			<li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_shutdown('/interclient/vm/action/','{{vm.vmid}}')">关机</button></li>
+			<li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_poweroff('/interclient/vm/action/','{{vm.vmid}}')">关闭电源</button></li>
+			<li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_reboot('/interclient/vm/action/','{{vm.vmid}}')">重启</button></li>
+			<li><button class="btn btn-xs btn-danger" style="width:100px;margin-top:2px" onclick="vm_delete('/interclient/vm/action/','{{vm.vmid}}')">删除</button></li>
+		  </ul>
+		</div>
+	</td>
+</tr>
+{%endfor%}
+
+</table>
+
+<script type="text/javascript">
+	var vmids = [{%for vm in vms%}"{{vm.vmid}}",{%endfor%}];
+	window.vm_status_tag =  'vm_status_';
+	window.vm_task_tag =  'vm_task_';
+    window.vm_status_url = '/interclient/vm/status/';
+	update_status(window.vm_status_url, vmids, 100000);
+
+</script>
+{%endblock%}

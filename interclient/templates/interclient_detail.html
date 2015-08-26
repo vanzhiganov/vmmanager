@@ -1,0 +1,35 @@
+{%extends 'interclient_base.html'%}
+{%block base%}
+<table>
+	<tr>
+		<th>name</th>
+		<td>{{vmobj.name}}</td>
+	</tr>
+	<tr>
+		<th>uuid</th>
+		<td>{{vmobj.uuid}}</td>
+	</tr>
+
+	<tr>
+		<th>image</th>
+		<td>{{vmobj.image}}</td>
+	</tr>
+	<tr>
+		<th>vcpu</th>
+		<td>{{vmobj.vcpu}}</td>
+	</tr>
+	<tr>
+		<th>mem</th>
+		<td>{{vmobj.mem}} KB</td>
+	</tr>
+	
+	{%for k,v in vminfo.items%}
+	<tr>
+		<th>{{k}}</th>
+		<td>{{v}}</td>
+	</tr>
+	
+	{%endfor%}
+</table>
+
+{%endblock%}

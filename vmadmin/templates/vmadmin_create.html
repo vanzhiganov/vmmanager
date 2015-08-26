@@ -1,0 +1,117 @@
+{%extends 'vmadmin_base.html'%}
+{%block base%}
+
+<form id="form" role="form"  class="form-horizontal"  method="post" action="" onsubmit ="getElementById('form_btn').disabled=true;getElementById('form_btn').value='creating...';return true;">
+	<h2>创建云主机</h2>
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Location</label>
+        <div class="col-sm-9">
+            <select name='center' class="form-control" style="width:200px">
+				{%for center in centers%}
+				<option value="{{center.pk}}" >{{center.name}}</option>
+				{%endfor%}
+			</select>
+        </div>
+    </div>
+    <script type="text/javascript">
+        {%if request.GET.center%}
+        $("select[name='center']").val('{{request.GET.center}}');
+        {%endif%}
+        $("select[name='center']").change(function (){
+            window.location.href='?center='+this.value;
+        })
+    </script>
+
+    <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">Group</label>
+        <div class="col-sm-9">
+            <select name="group" class="form-control" style="width:200px">
+            {%for group in groups.items.0.1%}
+            <option value="{{group.pk}}">{{group.name}}</option>
+            {%endfor%}
+            </select>
+        </div>
+    </div>
+<!--     <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">Image</label>
+        <div class="col-sm-9">
+            <select name="image" class="form-control" style="width:200px">
+			{%for image in images%}
+			<option value="{{image.snap}}">{{image.fullname}}</option>
+			{%endfor%}
+			</select>
+        </div>
+    </div> -->
+    <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">镜像</label>
+        <div class="col-sm-9">
+            <div style="padding-bottom:10px">
+            {%for t in type_images.keys%}
+               <input id="itype_{{forloop.counter}}" type="button" class="btn itype {%if forloop.first%}btn-info{%endif%}" value="{{t}}">
+            {%endfor%}
+            </div>
+            {%for images in type_images.values%}
+                <select id="images_{{forloop.counter}}"  class="form-control images" 
+                {%if forloop.first%}style="width:400px" name='image'{%else%}style="width:400px; display: none;"{%endif%}>
+                    {%for image in images%}
+                    <option value="{{image.snap}}">{{image.fullname}}</option>
+                    {%endfor%}
+                </select>
+            {%endfor%}
+        </div>
+    </div>
+    <script type="text/javascript">
+        $("input[id^='itype_']").click(function (){
+            var id = this.id.substr(6);
+            $(".itype").removeClass('btn-info');
+            $(this).addClass('btn-info');
+            $(".images").each(function(){
+                $(this).hide();
+                this.name = '';
+            });
+            $("#images_" + id).show();
+            $("#images_" + id)[0].name = 'image';
+        })
+    </script>
+
+    <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">network</label>
+        <div class="col-sm-9">
+            <select name="net" class="form-control" style="width:200px">
+                <option value="1">local network</option>
+                <option value="0">global network</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="content" class="col-sm-2 control-label">cpu</label>
+        <div class="col-sm-9">
+        <input required name="cpu" type="integer" class="form-control" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="content" class="col-sm-2 control-label">memory</label>
+        <div class="col-sm-9">
+        <input required name="mem" type="integer" class="form-control" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="content" class="col-sm-2 control-label">vm num</label>
+        <div class="col-sm-9">
+        <input required name="num" type="integer" class="form-control" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="content" class="col-sm-2 control-label"></label>
+        <div class="col-sm-9">
+            <input id="form_btn" type="submit" class="btn btn-primary" value="create" />
+           
+        </div>
+    </div>
+</form>
+{%for r in res%}
+{{r}}<br>
+{%endfor%}
+{%endblock%}

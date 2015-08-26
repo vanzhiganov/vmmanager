@@ -1,0 +1,129 @@
+{%extends 'vmadmin_base.html'%}
+{%block base%}
+	<h2>云主机列表 ({{p.count}})</h2>
+     <form role="form"  class="form-horizontal"  method="get" action="" style=" float:right; padding-bottom:10px">
+        <div class="input-group" style=""> 
+            <span class="input-group-addon">Group</span>
+            <select name="group" class="form-control">
+                <option value="">--</option>
+                {%for g in groups%}
+                <option value="{{g.0}}" {%if g.0 = request.GET.group %} selected {%endif%}>{{g.1}}</option>
+                {%endfor%}
+            </select>
+            <span class="input-group-addon">host</span>
+            <select name="host" class="form-control">
+                <option value="">--</option>
+                {%for h in hosts%}
+                <option value="{{h.0}}" {%if h.0 == request.GET.host %} selected {%endif%}>{{h.1}}</option>
+                {%endfor%}
+            </select>
+            
+            <span class="input-group-addon">IP</span>
+            <input type="text" class="form-control" name="ip" value="{{request.GET.ip}}" />
+
+            <span class="input-group-addon">Creator</span>
+            <input type="text" class="form-control" name="creator" value="{{request.GET.creator}}" />
+
+            <span class="input-group-addon"></span>
+            <input style="color: #fff;background-color: #3071a9;border-color: #285e8e;" type="submit" class="form-control"class="btn btn-primary" value="filter"/>
+    
+        </div>
+     </form>
+
+<table class="table">
+	<tr>
+		<th>UUID</th>
+		<th>host</th>
+		<th>image</th>
+		<th>IP</th>
+		<th>vcpu</th>
+		<th>memory</th>
+		<th>status</th>
+		<th>task</th>
+    <th>creator</th>
+		<th></th>
+	</tr>
+{%for vm in p.object_list%}
+<tr id="tr_{{vm.uuid}}">
+	<td><a href="/vmadmin/vm/detail/?vmid={{vm.uuid}}" title="{{vm.uuid}}">{{vm.uuid|slice:":6"}}</a></td>
+	<td>{{vm.host.ipv4}}</td>
+	<td>{{vm.image_name}}</td>
+	<td>{{vm.ipv4}}</td>
+	<td>{{vm.vcpu}}</td>
+	<td>{{vm.mem}}</td>
+	<td><span id="vm_status_{{vm.uuid}}"></span></td>
+	<td><span id="vm_task_{{vm.uuid}}"></span></td>
+  <td>{{vm.creator}}</td>
+	<td>
+<!-- 
+		<button onclick="vm_start('/vmadmin/vm/action/', '{{vm.uuid}}')">start</button>
+		<button onclick="vm_shutdown('/vmadmin/vm/action/', '{{vm.uuid}}')">shutdown</button>
+		<button onclick="vm_poweroff('/vmadmin/vm/action/', '{{vm.uuid}}')">poweroff</button>
+    <br>
+		<button onclick="vm_reboot('/vmadmin/vm/action/', '{{vm.uuid}}')">reboot</button>
+		<button onclick="vm_delete('/vmadmin/vm/action/', '{{vm.uuid}}')">delete</button>
+		<a target="_blank" href="/vmadmin/vm/novnc/?vmid={{vm.uuid}}">vnc</a>
+ -->
+    <!-- Split button -->
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-success" onclick="window.open('/vmadmin/vm/novnc/?vmid={{vm.uuid}}')">VNC</button>
+      <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu" style="min-width: 0px;">
+        <li><button class="btn btn-xs btn-primary" style="width:100px;margin-top:2px" onclick="vm_start('/vmadmin/vm/action/', '{{vm.uuid}}')">start</button></li>
+      <li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_shutdown('/vmadmin/vm/action/','{{vm.uuid}}')">shutdown</button></li>
+      <li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_poweroff('/vmadmin/vm/action/','{{vm.uuid}}')">poweroff</button></li>
+      <li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_reboot('/vmadmin/vm/action/','{{vm.uuid}}')">reboot</button></li>
+      <li><button class="btn btn-xs btn-danger" style="width:100px;margin-top:2px" onclick="vm_delete('/vmadmin/vm/action/','{{vm.uuid}}')">delete</button></li>
+      </ul>
+    </div>
+
+	</td>
+</tr>
+{%endfor%}
+
+</table>
+
+<ul class="pagination pull-right">
+      {% if p.has_previous %}
+      <li><a href="{{p.link}}{{ p.previous_page_number }}">&laquo;</a></li>
+      {%else%}
+      <li class="disabled"><span>&laquo;</span></li>
+      {% endif %}
+      {% if p.num_cur_page !=  p.start_page%}
+      <li><a href="{{p.link}}{{p.start_page}}">first</a></li>
+      {%else%}
+      <li class="disabled"><span>first</span></li>
+      {%endif%}
+
+       {%for num in p.page_range%}
+       {%if num == p.num_cur_page%}
+      <li class="active"><span>{{num}}</span></li>
+       {%else%}
+      <li><a href="{{p.link}}{{num}}">{{num}}</a></li>
+    {%endif%}
+      {%endfor%}
+
+       {% if p.num_cur_page != p.end_page%}
+      <li><a href="{{p.link}}{{p.end_page}}">last</a></li>
+       {%else%}
+      <li class="disabled"><span>last</span></li>
+      {%endif%}
+      {% if p.has_next %}
+      <li><a href="{{p.link}}{{ p.next_page_number }}">&raquo;</a></li>  {%else%}
+      <li class="disabled"><span>&raquo;</span></li>
+       {% endif %}
+    </ul>
+<!-- 
+<script type="text/javascript" src="/static/js/vm_list.js"></script> -->
+<script type="text/javascript">
+	var vmids = [{%for vm in p.object_list%}"{{vm.uuid}}",{%endfor%}];
+	window.vm_status_tag =  'vm_status_';
+	window.vm_task_tag =  'vm_task_';
+  window.vm_status_url = '/vmadmin/vm/status/';
+	update_status(window.vm_status_url , vmids, 600000);
+
+</script>
+{%endblock%}

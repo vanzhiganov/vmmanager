@@ -1,0 +1,5 @@
+*.pyc
+*.swap
+/vmmanager/settings.py
+/vmmanager/devsettings.py
+/vmmanager/nginx.conf

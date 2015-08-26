@@ -1,0 +1,258 @@
+diff -r vmmanager_1.4/changelog vmmanager_1.3/changelog
+0a1,54
+> diff -r vmmanager_1.2 vmmanager_1.3
+> Only in vmmanager_1.2/compute: .libvirt_decorator.py.swp
+> diff -r vmmanager_1.2/interclient/admin.py vmmanager_1.3/interclient/admin.py
+> 11,12c11,12
+> <     list_display = ('username', 'vmid', 'image', 'cpu', 'mem', 'start_time', 'end_time')
+> <     list_filter = ['username', 'image',]
+> ---
+> >     list_display = ('username', 'vmid', 'image', 'cpu', 'mem', 'start_time', 'end_time', 'deleted')
+> >     list_filter = ['username', 'image', 'deleted']
+> Binary files vmmanager_1.2/interclient/admin.pyc and vmmanager_1.3/interclient/admin.pyc differ
+> Binary files vmmanager_1.2/interclient/models.pyc and vmmanager_1.3/interclient/models.pyc differ
+> diff -r vmmanager_1.2/interclient/views.py vmmanager_1.3/interclient/views.py
+> 156c156
+> <       dic['vms'] = ICDVm.objects.filter(user=request.user)
+> ---
+> >       dic['vms'] = ICDVm.objects.filter(user=request.user, deleted=False)
+> 160c160
+> <         vm_num = ICDVm.objects.filter(user = user).count()
+> ---
+> >         vm_num = ICDVm.objects.filter(user = user, deleted=False).count()
+> 193c193
+> <                         'interclient',
+> ---
+> >                         'interclient_' + request.user.username,
+> 261c261
+> <             if status == 'deleted' and ICDVm.objects.filter(vmid = vmid).exists():
+> ---
+> >             if status == 'deleted' and ICDVm.objects.filter(vmid = vmid, deleted=False).exists():
+> 276c276,277
+> <                         obj.delete()
+> ---
+> >                         obj.deleted = True
+> >                         obj.save()
+> 299c300
+> <         return ICDVm.objects.filter(user=request.user)
+> ---
+> >         return ICDVm.objects.filter(user=request.user, deleted=False)
+> 302c303
+> <         vm = ICDVm.objects.filter(user = request.user, vmid = vmid)
+> ---
+> >         vm = ICDVm.objects.filter(user = request.user, vmid = vmid, deleted=False)
+> Binary files vmmanager_1.2/interclient/views.pyc and vmmanager_1.3/interclient/views.pyc differ
+> diff -r vmmanager_1.2/vmmanager/settings.py vmmanager_1.3/vmmanager/settings.py
+> 93,96c93,96
+> < 	'USER': 'root',
+> < 	'PASSWORD': '',
+> < 	'HOST': '127.0.0.1',
+> < 	'PORT': '3306'
+> ---
+> >     'USER': 'root',
+> >     'PASSWORD': '',
+> >     'HOST': '127.0.0.1',
+> >     'PORT': '3306'
+> Binary files vmmanager_1.2/vmmanager/settings.pyc and vmmanager_1.3/vmmanager/settings.pyc differ
+diff -r vmmanager_1.4/compute/actions.py vmmanager_1.3/compute/actions.py
+23c23
+<                 dicts['vminfo']['state'] = VM_STATE[info[0]]
+---
+>                 dicts['vminfo']['state'] = info[0]
+37d36
+< 
+39c38,41
+<                
+---
+>                 dicts['vminfo']['kernel'] = get_xml(ctx, '/domain/os/kernel')
+>                 dicts['vminfo']['initrd'] = get_xml(ctx, '/domain/os/initrd')
+>                 dicts['vminfo']['cmdline'] = get_xml(ctx, '/domain/os/cmdline')
+>             
+Binary files vmmanager_1.4/compute/actions.pyc and vmmanager_1.3/compute/actions.pyc differ
+Binary files vmmanager_1.4/compute/admin.pyc and vmmanager_1.3/compute/admin.pyc differ
+Binary files vmmanager_1.4/compute/ceph.pyc and vmmanager_1.3/compute/ceph.pyc differ
+Binary files vmmanager_1.4/compute/host_filter.pyc and vmmanager_1.3/compute/host_filter.pyc differ
+Binary files vmmanager_1.4/compute/__init__.pyc and vmmanager_1.3/compute/__init__.pyc differ
+Binary files vmmanager_1.4/compute/libvirt_decorator.pyc and vmmanager_1.3/compute/libvirt_decorator.pyc differ
+Binary files vmmanager_1.4/compute/models.pyc and vmmanager_1.3/compute/models.pyc differ
+Binary files vmmanager_1.4/compute/vnc.pyc and vmmanager_1.3/compute/vnc.pyc differ
+Binary files vmmanager_1.4/image/admin.pyc and vmmanager_1.3/image/admin.pyc differ
+Binary files vmmanager_1.4/image/imagemanager.pyc and vmmanager_1.3/image/imagemanager.pyc differ
+Binary files vmmanager_1.4/image/__init__.pyc and vmmanager_1.3/image/__init__.pyc differ
+Binary files vmmanager_1.4/image/models.pyc and vmmanager_1.3/image/models.pyc differ
+Binary files vmmanager_1.4/interclient/admin.pyc and vmmanager_1.3/interclient/admin.pyc differ
+Binary files vmmanager_1.4/interclient/auth.pyc and vmmanager_1.3/interclient/auth.pyc differ
+Binary files vmmanager_1.4/interclient/__init__.pyc and vmmanager_1.3/interclient/__init__.pyc differ
+Binary files vmmanager_1.4/interclient/models.pyc and vmmanager_1.3/interclient/models.pyc differ
+Binary files vmmanager_1.4/interclient/urls.pyc and vmmanager_1.3/interclient/urls.pyc differ
+Binary files vmmanager_1.4/interclient/views.pyc and vmmanager_1.3/interclient/views.pyc differ
+Binary files vmmanager_1.4/message/__init__.pyc and vmmanager_1.3/message/__init__.pyc differ
+Binary files vmmanager_1.4/message/models.pyc and vmmanager_1.3/message/models.pyc differ
+Binary files vmmanager_1.4/network/admin.pyc and vmmanager_1.3/network/admin.pyc differ
+Binary files vmmanager_1.4/network/__init__.pyc and vmmanager_1.3/network/__init__.pyc differ
+Binary files vmmanager_1.4/network/models.pyc and vmmanager_1.3/network/models.pyc differ
+Binary files vmmanager_1.4/network/netmanager.pyc and vmmanager_1.3/network/netmanager.pyc differ
+Binary files vmmanager_1.4/oauth/__init__.pyc and vmmanager_1.3/oauth/__init__.pyc differ
+Binary files vmmanager_1.4/oauth/urls.pyc and vmmanager_1.3/oauth/urls.pyc differ
+Binary files vmmanager_1.4/oauth/views.pyc and vmmanager_1.3/oauth/views.pyc differ
+Binary files vmmanager_1.4/utils/__init__.pyc and vmmanager_1.3/utils/__init__.pyc differ
+Binary files vmmanager_1.4/utils/page.pyc and vmmanager_1.3/utils/page.pyc differ
+Binary files vmmanager_1.4/utils/route.pyc and vmmanager_1.3/utils/route.pyc differ
+Binary files vmmanager_1.4/utils/views.pyc and vmmanager_1.3/utils/views.pyc differ
+Binary files vmmanager_1.4/vmadmin/auth.pyc and vmmanager_1.3/vmadmin/auth.pyc differ
+Binary files vmmanager_1.4/vmadmin/__init__.pyc and vmmanager_1.3/vmadmin/__init__.pyc differ
+Binary files vmmanager_1.4/vmadmin/migrations/__init__.pyc and vmmanager_1.3/vmadmin/migrations/__init__.pyc differ
+Binary files vmmanager_1.4/vmadmin/models.pyc and vmmanager_1.3/vmadmin/models.pyc differ
+diff -r vmmanager_1.4/vmadmin/templates/vmadmin_detail.html vmmanager_1.3/vmadmin/templates/vmadmin_detail.html
+3,17c3,11
+< <style type="text/css">
+< 	.detail {
+< 	  margin-right: 0;
+< 	  margin-left: 0;
+< 	  /*background-color: #fff;*/
+< 	  border-color: #080808;
+< 	  border-width: 1px;
+< 	  border-radius: 4px 4px 0 0;
+< 	  /*-webkit-box-shadow: none;*/
+< 	  padding:20px;
+< 	  box-shadow: none;
+< 	}
+< </style>
+< <div role="form" class="form-horizontal" > 
+< <div class="detail">
+---
+> <table>
+> 	<tr>
+> 		<th>name</th>
+> 		<td>{{vmobj.name}}</td>
+> 	</tr>
+> 	<tr>
+> 		<th>uuid</th>
+> 		<td>{{vmobj.uuid}}</td>
+> 	</tr>
+19,98c13,25
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">Name</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.name}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">Host</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.host}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">Image</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.image_name}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">cpu</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.vcpu}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">memory</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.mem}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">Creator</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.creator}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">create time</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.create_time}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">vlan</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.vlan}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">br</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.br}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">mac</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.mac}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">ipv4</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.ipv4}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">ceph host</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.ceph_host}}</span>
+< 	    </div>
+< 	</div>
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">ceph pool</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{vmobj.ceph_pool}}</span>
+< 	    </div>
+< 	</div>
+< </div>
+< <div class="detail">
+---
+> 	<tr>
+> 		<th>image</th>
+> 		<td>{{vmobj.image}}</td>
+> 	</tr>
+> 	<tr>
+> 		<th>vcpu</th>
+> 		<td>{{vmobj.vcpu}}</td>
+> 	</tr>
+> 	<tr>
+> 		<th>mem</th>
+> 		<td>{{vmobj.mem}} KB</td>
+> 	</tr>
+> 	
+100,106c27,31
+< 	<div class="form-group">
+< 	    <label for="name"  class="col-sm-2 control-label">{{k}}</label>
+< 	    <div class="col-sm-10">
+< 	        <span  class="form-control" >{{v}}</span>
+< 	    </div>
+< 	</div>
+< 
+---
+> 	<tr>
+> 		<th>{{k}}</th>
+> 		<td>{{v}}</td>
+> 	</tr>
+> 	
+108,109c33,34
+< </div>
+< </div>
+---
+> </table>
+> 
+Binary files vmmanager_1.4/vmadmin/topo.pyc and vmmanager_1.3/vmadmin/topo.pyc differ
+Binary files vmmanager_1.4/vmadmin/urls.pyc and vmmanager_1.3/vmadmin/urls.pyc differ
+Binary files vmmanager_1.4/vmadmin/views.pyc and vmmanager_1.3/vmadmin/views.pyc differ
+Binary files vmmanager_1.4/vmmanager/devsettings.pyc and vmmanager_1.3/vmmanager/devsettings.pyc differ
+Binary files vmmanager_1.4/vmmanager/__init__.pyc and vmmanager_1.3/vmmanager/__init__.pyc differ
+Binary files vmmanager_1.4/vmmanager/settings.pyc and vmmanager_1.3/vmmanager/settings.pyc differ
+Binary files vmmanager_1.4/vmmanager/urls.pyc and vmmanager_1.3/vmmanager/urls.pyc differ
+Binary files vmmanager_1.4/vmmanager/views.pyc and vmmanager_1.3/vmmanager/views.pyc differ
+Binary files vmmanager_1.4/vmuser/__init__.pyc and vmmanager_1.3/vmuser/__init__.pyc differ
+Binary files vmmanager_1.4/vmuser/migrations/__init__.pyc and vmmanager_1.3/vmuser/migrations/__init__.pyc differ
+Binary files vmmanager_1.4/vmuser/models.pyc and vmmanager_1.3/vmuser/models.pyc differ

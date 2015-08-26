@@ -1,0 +1,25 @@
+{%extends 'interclient_base.html'%}
+{%block base%}
+<div class="logindiv">
+<div id="header" style="background:#222222">
+   <div id="branding">
+      <h2 id="site-name" style="color:#EEEEEE" align="center">登录</h2>
+   </div>
+</div>
+<form style="margin: 10px 15px;" method="post" action="" onsubmit ="getElementById('form_btn').disabled=true;getElementById('form_btn').value='registing...';return true;">
+    {% csrf_token %}
+    <div class="form-group">
+        <label>账户名(Email)</label>
+        <input required id="id_username" maxlength="254" name="username" type="text" class="form-control"  />
+    </div>
+    <div class="form-group">
+        <label>密码</label>
+        <input required id="id_password" name="password" type="password" class="form-control"  />
+    </div>
+	<input type="hidden" name="this_is_the_login_form" value="1" />
+    <input type="hidden" name="next" value="/interclient/vm/list/" />
+	<input type="submit" value="登录" class="btn btn-primary" />
+	<a href="/interclient/register/">注册</a>
+</form>
+</div>
+{%endblock%}
