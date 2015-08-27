@@ -1,5 +1,8 @@
 *.pyc
 *.swap
-/vmmanager/settings.py
-/vmmanager/devsettings.py
+/vmmanager/settings_dev.py
+/vmmanager/settings_ol.py
 /vmmanager/nginx.conf
+/vmmanager.xml
+/runserver.sh
+/wsgi.py
