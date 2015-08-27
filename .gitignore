@@ -1,5 +1,5 @@
 *.pyc
-*.swap
+*.swp
 /vmmanager/settings_dev.py
 /vmmanager/settings_ol.py
 /vmmanager/nginx.conf
