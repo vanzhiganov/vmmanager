@@ -62,7 +62,7 @@ class Vm(models.Model):
 
     @property
     def status(self):
-        from api import VM_STATE
+        from libvirt_decorator import VM_STATE
         domain = self.get_domain()
         if not domain:
             return 'not exist'
@@ -90,9 +90,9 @@ class Vm(models.Model):
         return NetManager().get_br_by_vmid(self.uuid)
 
     def get_domain(self):
-        from .api import connection
+        from libvirt_decorator import LibvirtDecorator
         try:
-            conn = connection(self.host.ipv4)
+            conn = LibvirtDecorator()._connection(self.host.ipv4)
         except Exception, e:
             print e
             return None
