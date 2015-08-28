@@ -18,7 +18,7 @@ from django.contrib import admin
 
 from django.contrib.auth.views import login, logout
 
-from site import interclientsite
+# from site import interclientsite
 urlpatterns = [
 
     url(r'^$', "vmmanager.views.index"),
