@@ -105,6 +105,15 @@ class Vm(models.Model):
             print e
             return None
 
+    def show_mem(self):
+        if self.mem < 1024:
+            return '%d KB' % self.mem
+        mem = self.mem / 1024.0
+        if mem < 1024:
+            return '%.2f MB' % mem
+        mem = mem / 1024.0
+        return '%.2f GB' % mem
+
     # @property
     # def image_name(self):
     #     image = Image.objects.filter(snap=self.image)

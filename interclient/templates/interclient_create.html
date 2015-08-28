@@ -58,7 +58,7 @@
         <div class="col-sm-9">
             <select name="tpl" class="form-control" style="width:400px">
             {%for tpl in tpls%}
-            <option value="{{tpl.pk}}">{{tpl.cpu}} vcpu(s) | {{tpl.mem}}KB mem | {{tpl.term}} month(s)</option>
+            <option value="{{tpl.pk}}">{{tpl}}</option>
             {%endfor%}
             </select>
         </div>

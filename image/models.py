@@ -74,7 +74,7 @@ class Image(models.Model):
         return self.snap
 
     class Meta:
-        unique_together = ('name', 'version')
+        unique_together = ('ceph', 'name', 'version')
 
     @property
     def fullname(self):
