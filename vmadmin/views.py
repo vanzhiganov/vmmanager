@@ -96,7 +96,7 @@ class VmView(AbsView):
                     groupid, 
                     image, 
                     {
-                        'memory':int(memory),
+                        'memory':int(memory) * 1024,
                         'vcpu':int(cpu),
                     },
                     request.user.username,
@@ -104,8 +104,6 @@ class VmView(AbsView):
                 )
                 # print res, obj
                 if res == True:
-                    # obj = Vm.objects.filter(uuid=vmCreated.UUIDString)
-                    # obj = obj[0]
                     dicts['res'].append((res, obj.host.ipv4, obj.ipv4))
                 else:
                     dicts['res'].append((res, obj))
@@ -113,13 +111,16 @@ class VmView(AbsView):
 
     def list(self, request, template):
         dicts = {}
+        arg_center = request.GET.get('center')
         arg_group = request.GET.get('group')
         arg_host = request.GET.get('host')
         arg_ip = request.GET.get('ip')
         arg_creator = request.GET.get('creator')
 
         #querySet filter
-        vms = self._get_vms(request)
+        vms = self._get_vms(request).order_by('-create_time')
+        if arg_center and Center.objects.filter(pk=arg_center).exists():
+            vms = vms.filter(host__group__center_id = arg_center)
         if arg_group and Group.objects.filter(pk=arg_group).exists():
             vms = vms.filter(host__group_id = arg_group)
         if arg_host and Host.objects.filter(pk=arg_host).exists():
@@ -133,6 +134,7 @@ class VmView(AbsView):
             vms = [vm for vm in vms if vm.ipv4[:len(arg_ip)] == arg_ip]
 
         dicts['p'] = get_page(vms, request)
+        dicts['centers'] = self._get_centers(request)
         dicts['groups'] = [(str(g.pk), g.name) for g in self._get_groups(request)]
         dicts['hosts'] = [(str(h.pk), h.ipv4) for h in self._get_hosts(request).order_by('ipv4')]
         dicts['status_list'] = [(str(i[0]), i[1]) for i in VM_STATE.items()]

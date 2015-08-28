@@ -3,6 +3,14 @@
 	<h2>云主机列表 ({{p.count}})</h2>
      <form role="form"  class="form-horizontal"  method="get" action="" style=" float:right; padding-bottom:10px">
         <div class="input-group" style=""> 
+            <span class="input-group-addon">Center</span>
+            <select name="center" class="form-control">
+                <option value="">--</option>
+                {%for c in centers%}
+                <option value="{{c.pk}}" {%if c.pk == request.GET.center|add:0 %} selected {%endif%}>{{c.name}}</option>
+                {%endfor%}
+            </select>
+
             <span class="input-group-addon">Group</span>
             <select name="group" class="form-control">
                 <option value="">--</option>
@@ -50,7 +58,7 @@
 	<td>{{vm.image_name}}</td>
 	<td>{{vm.ipv4}}</td>
 	<td>{{vm.vcpu}}</td>
-	<td>{{vm.mem}}</td>
+	<td>{{vm.show_mem}}</td>
 	<td><span id="vm_status_{{vm.uuid}}"></span></td>
 	<td><span id="vm_task_{{vm.uuid}}"></span></td>
   <td>{{vm.creator}}</td>

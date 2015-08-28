@@ -81,7 +81,7 @@ class ICDTpl(models.Model):
     term = models.IntegerField(help_text='month')
 
     def __unicode__(self):
-        return "%d vcpu | %dKB mem | %d month(s)" %(self.cpu, self.mem, self.term)
+        return "%d vcpu | %dMB mem | %d month(s)" %(self.cpu, self.mem/1024, self.term)
 
 
 class ICDConf(models.Model):
