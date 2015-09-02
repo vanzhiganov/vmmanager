@@ -9,11 +9,9 @@ from image.imagemanager import ImageManager
 from django.db import transaction
 from random import randint
 from host_filter import host_filter
-
+from vmxml import DomainXML, XMLEditor
 
 from datetime import datetime
-
-XML_TEMPLATE =  os.path.dirname(__file__) + '/default.xml'
 
 
 VIR_DOMAIN_NOSTATE  =   0   #no state
@@ -39,42 +37,138 @@ VM_STATE = {
 }
 
 class Domain(object):
-    def __init__(self):
+    def __init__(self, obj):
         self.netmanager = NetManager()
         self.imagemanager = ImageManager()
-
-
-    def start(self, obj):
+        self._obj = obj
         try:
-            #print os.system('ssh %s virsh vncdisplay %s'%(host.ipv4,argv['uuid']))\
-            vm = obj.get_domain()
-            if vm:
-                vm.create()
-            else:
-                return False, 'vm not exist.'
-        except Exception, e:
-            return False, e
-        return True, obj
-
-
-
-
-    def delete(self, vmobj):
-        vm = vmobj.get_domain()
-        if vm:
+            self._conn = libvirt.open("qemu+ssh://%s/system" % self._obj.host.ipv4) 
+        except:
+            self._conn = None
+        else:
             try:
-                vm.destroy()
+                self._vm = self._conn.lookupByUUIDString(self._obj.uuid)
+            except:
+                self._vm = None
+
+    def __getattr__(self, name):
+        if hasattr(self._obj, name):
+            return getattr(self._obj, name)
+        if self._vm:
+            return getattr(self._vm, name)
+
+    def delete(self):
+        if self.exists():
+            try:
+                self.destroy()
             except:
                 pass
-            vm.undefine()
-            res = self.imagemanager.archive_disk(vmobj.get_ceph(), vmobj.uuid)
+            self.undefine()
+            res = self.imagemanager.archive_disk(self._obj.get_ceph(), self._obj.uuid)
             print  'archive res:', res
-        if not vmobj.get_domain():
+
+        if not self._obj.get_domain():
             archive = VmArchive()
-            if archive.archiveFromVm(vmobj):
+            if archive.archiveFromVm(self._obj):
                 self.netmanager.release_mac(archive.mac, archive.uuid)
-                self._release_resource(vmobj.host, vmobj.vcpu, vmobj.mem)
-                vmobj.delete()
+                self._obj.host.release(self._obj.vcpu, self._obj.mem)
+                self._obj.delete()
                 return True
         return False
 
+    def exists(self):
+        if self._vm:
+            return True
+        return False
+
+    def _get_createxml_argv(self):
+        ceph = self._obj.get_ceph()
+        argv = {}
+        argv['name'] = self._obj.name
+        argv['uuid'] = self._obj.uuid
+        argv['memory'] = self._obj.mem
+        argv['vcpu'] = self._obj.vcpu
+        argv['ceph_uuid'] = ceph.uuid
+        argv['ceph_pool'] = ceph.pool
+        argv['diskname'] = self._obj.disk
+        argv['ceph_host'] = ceph.host
+        argv['ceph_port'] = ceph.port
+        argv['mac'] = self._obj.mac
+        argv['bridge'] = self._obj.br
+        return argv
+
+    def set_cpu(self, cpu):
+        try:
+            cpu = int(cpu)
+        except:
+            return False
+
+        if self.status == 'running':
+            return False
+
+        if cpu == self._obj.vcpu:
+            return True
+        org_cpu = self._obj.vcpu
+
+        xml = XMLEditor()
+        xml.set_xml(self.XMLDesc())
+        root = xml.get_root()
+        try:
+            root.getElementsByTagName('vcpu')[0].firstChild.data = cpu
+        except:
+            return False
+
+        xmldesc = root.toxml()
+        if self._obj.update_cpu(cpu):
+            try:
+                print xmldesc
+                res = self._conn.defineXML(xmldesc)
+            except Exception, e:
+                self._obj.update_cpu(org_cpu)
+            else:
+                return True
+        return False
+
+    def set_memory(self, memory):
+        try:
+            memory = int(memory)
+        except:
+            return False
+
+        if self.status == 'running':
+            return False
+
+        if memory == self._obj.mem:
+            return True
+        org_memory = self._obj.mem
+
+        xml = XMLEditor()
+        xml.set_xml(self.XMLDesc())
+        node = xml.get_node([ 'memory'])
+        if node:
+            node.firstChild.data = memory
+        node1 = xml.get_node(['currentMemory'])
+        if node1:
+            node1.firstChild.data = memory
+        xmldesc = xml.get_root().toxml()
+
+        if self._obj.update_memory(memory):
+            try:
+                res = self._conn.defineXML(xmldesc)
+            except Exception, e:
+                print e
+                self._obj.update_memory(org_memory)
+            else:
+                return True
+        return False
+
+    @property
+    def status(self):
+        if not self.exists():
+            return 'not exist'
+        try:
+            info = self.info()
+            status = VM_STATE[info[0]]
+        except Exception, e:
+            status = 'error'
+        return status

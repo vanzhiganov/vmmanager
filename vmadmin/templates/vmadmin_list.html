@@ -15,14 +15,14 @@
             <select name="group" class="form-control">
                 <option value="">--</option>
                 {%for g in groups%}
-                <option value="{{g.0}}" {%if g.0 = request.GET.group %} selected {%endif%}>{{g.1}}</option>
+                <option value="{{g.pk}}" {%if g.pk = request.GET.group|add:0 %} selected {%endif%}>{{g.name}}</option>
                 {%endfor%}
             </select>
             <span class="input-group-addon">host</span>
             <select name="host" class="form-control">
                 <option value="">--</option>
                 {%for h in hosts%}
-                <option value="{{h.0}}" {%if h.0 == request.GET.host %} selected {%endif%}>{{h.1}}</option>
+                <option value="{{h.pk}}" {%if h.pk == request.GET.host|add:0 %} selected {%endif%}>{{h.ipv4}}</option>
                 {%endfor%}
             </select>
             
@@ -63,16 +63,6 @@
 	<td><span id="vm_task_{{vm.uuid}}"></span></td>
   <td>{{vm.creator}}</td>
 	<td>
-<!-- 
-		<button onclick="vm_start('/vmadmin/vm/action/', '{{vm.uuid}}')">start</button>
-		<button onclick="vm_shutdown('/vmadmin/vm/action/', '{{vm.uuid}}')">shutdown</button>
-		<button onclick="vm_poweroff('/vmadmin/vm/action/', '{{vm.uuid}}')">poweroff</button>
-    <br>
-		<button onclick="vm_reboot('/vmadmin/vm/action/', '{{vm.uuid}}')">reboot</button>
-		<button onclick="vm_delete('/vmadmin/vm/action/', '{{vm.uuid}}')">delete</button>
-		<a target="_blank" href="/vmadmin/vm/novnc/?vmid={{vm.uuid}}">vnc</a>
- -->
-    <!-- Split button -->
     <div class="btn-group">
       <button type="button" class="btn btn-sm btn-success" onclick="window.open('/vmadmin/vm/novnc/?vmid={{vm.uuid}}')">VNC</button>
       <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -85,6 +75,8 @@
       <li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_poweroff('/vmadmin/vm/action/','{{vm.uuid}}')">poweroff</button></li>
       <li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_reboot('/vmadmin/vm/action/','{{vm.uuid}}')">reboot</button></li>
       <li><button class="btn btn-xs btn-danger" style="width:100px;margin-top:2px" onclick="vm_delete('/vmadmin/vm/action/','{{vm.uuid}}')">delete</button></li>
+      <li><button class="btn btn-xs btn-info" style="width:100px;margin-top:2px" onclick="javascript:window.location.href='/vmadmin/vm/edit/?vmid={{vm.uuid}}'">edit</button></li>
+      
       </ul>
     </div>
 

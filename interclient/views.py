@@ -271,8 +271,9 @@ class ICDVmView(AbsView):
             obj = self._get_vm(request, vmid)
             if obj:
                 actionobj = VmAction(vmid)
-                res = actionobj.execute(action, request)
-                if res:
+                res, err = actionobj.execute(action, request)
+                # print 111111111, res
+                if not actionobj.vmobj or res:
                     if action == 'delete':
                         obj.deleted = True
                         obj.save()

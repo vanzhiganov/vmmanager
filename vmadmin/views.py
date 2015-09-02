@@ -1,3 +1,4 @@
+#coding=utf-8
 import uuid, json, libxml2
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
@@ -7,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from auth import staff_required
 
 from compute.libvirt_decorator import *
+from compute.domain import Domain
+
 from compute.models import Host, Center, Group, Vm
 from image.models import Image
 from network.models import Vlan
@@ -46,6 +49,8 @@ class VmView(AbsView):
 
         r'^action/$'    : ['action', ''],
         r'^status/$'    : ['status', ''],
+
+        r'^edit/$'    : ['edit', ''],        
     }
 
     def index(self, request, template):
@@ -135,15 +140,41 @@ class VmView(AbsView):
 
         dicts['p'] = get_page(vms, request)
         dicts['centers'] = self._get_centers(request)
-        dicts['groups'] = [(str(g.pk), g.name) for g in self._get_groups(request)]
-        dicts['hosts'] = [(str(h.pk), h.ipv4) for h in self._get_hosts(request).order_by('ipv4')]
-        dicts['status_list'] = [(str(i[0]), i[1]) for i in VM_STATE.items()]
+        dicts['groups'] = self._get_groups(request)
+        dicts['hosts'] = self._get_hosts(request).order_by('ipv4')
         return render_to_response(template, dicts, context_instance=RequestContext(request))
 
 
     def detail(self, request, template):
         vmid = request.GET.get('vmid')
         dicts = VmAction(vmid).get_detail()
+        return render_to_response(template, dicts, context_instance=RequestContext(request))
+
+    def edit(self, request, template):
+        dicts = {}
+        if request.method == 'POST':
+            cpu = request.POST.get('cpu')
+            mem = request.POST.get('mem')
+            vmid = request.POST.get('vmid')
+            try:
+                cpu = int(cpu)
+                mem = int(mem) * 1024
+            except:
+                dicts['error'] = 'vpu and memory must be ingeger'
+            else:
+                obj = self._get_vm(request, vmid)
+                domain = Domain(obj)
+                if domain.status == 'running':
+                    dicts['warning'] = '主机处于运行状态，不能修改配置。'
+                else:
+                    if not domain.set_cpu(cpu):
+                        dicts['error_cpu'] = 'change cpu error.'
+                    if not domain.set_memory(mem):
+                        dicts['error_memory'] = 'change memory error.'
+                
+        vmid = request.GET.get('vmid')
+        dicts['vmobj'] = self._get_vm(request, vmid)
+        dicts['vmobj'].mem /= 1024        
         return render_to_response(template, dicts, context_instance=RequestContext(request))
 
     def novnc(self, request, template):
@@ -178,7 +209,7 @@ class VmView(AbsView):
             vm = self._get_vm(request, vmid)
             if vm:
                 actionobj = VmAction(vmid)
-                res = actionobj.execute(action, request)
+                res, err = actionobj.execute(action, request)
                 if not res:
                     print 'Action error: %s' % actionobj.error
             else:

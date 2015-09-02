@@ -10,33 +10,12 @@ from django.db import transaction
 from random import randint
 from host_filter import host_filter
 
+from vmxml import DomainXML
 
 from datetime import datetime
 
-XML_TEMPLATE =  os.path.dirname(__file__) + '/default.xml'
+from domain import VM_STATE
 
-
-VIR_DOMAIN_NOSTATE  =   0   #no state
-VIR_DOMAIN_RUNNING  =   1   #the domain is running
-VIR_DOMAIN_BLOCKED  =   2   #the domain is blocked on resource
-VIR_DOMAIN_PAUSED   =   3   #the domain is paused by user
-VIR_DOMAIN_SHUTDOWN =   4   #the domain is being shut down
-VIR_DOMAIN_SHUTOFF  =   5   #the domain is shut off
-VIR_DOMAIN_CRASHED  =   6   #the domain is crashed
-VIR_DOMAIN_PMSUSPENDED =7   #the domain is suspended by guest power management
-VIR_DOMAIN_LAST =   8       #NB: this enum value will increase over time as new events are added to the libvirt API. It reflects the last state supported by this version of the libvirt API.
-
-VM_STATE = {
-    VIR_DOMAIN_NOSTATE:  'no state',
-    VIR_DOMAIN_RUNNING: 'running',
-    VIR_DOMAIN_BLOCKED: 'blocked',
-    VIR_DOMAIN_PAUSED: 'paused',
-    VIR_DOMAIN_SHUTDOWN: 'shut down',
-    VIR_DOMAIN_SHUTOFF: 'shut off',
-    VIR_DOMAIN_CRASHED: 'crashed',
-    VIR_DOMAIN_PMSUSPENDED: 'suspended',
-    VIR_DOMAIN_LAST: '',
-}
 
 class LibvirtDecorator(object):
     def __init__(self):
@@ -117,21 +96,21 @@ class LibvirtDecorator(object):
         argv['mac'] = mac
         
         #resource claim
-        host = self._claim_resource(host, argv['vcpu'], argv['memory'])
+        host.claim(argv['vcpu'], argv['memory'])
 
         # print xmldesc
         diskinfo = self.imagemanager.init_disk(image_snap, argv['diskname'])
         if not diskinfo:
-            host = self._release_resource(host, argv['vcpu'], argv['memory'])
+            host.release(argv['vcpu'], argv['memory'])
             self.netmanager.release_mac(argv['mac'], argv['uuid'])
             return False, 'Disk init error: %s' % self.imagemanager.error
 
         argv.update(diskinfo)
-        # print '111111111111111111', argv
-
         
         try:
-            xmldesc = self._create_xml(argv)
+            xml = DomainXML(argv['image'])
+            xmldesc = xml.render(argv)
+            # print xmldesc
             conn = self._connection(host.ipv4)
             vm = conn.defineXML(xmldesc)
 
@@ -150,38 +129,11 @@ class LibvirtDecorator(object):
         except Exception,e:
             print e
             # release resource
-            host = self._release_resource(host, argv['vcpu'], argv['memory'])
+            host.release(argv['vcpu'], argv['memory'])
             # release mac address
             self.netmanager.release_mac(argv['mac'], argv['uuid'])
-            return False, 'Define error: %s' % e
-                
-
-
+            return False, 'Define error: %s' % e          
         return True, obj
-
-    def _claim_resource(self, host, vcpu, memory):
-        with transaction.atomic():
-            h = Host.objects.select_for_update().get(pk=host.pk)
-            h.cpu_allocated += vcpu
-            h.mem_allocated += memory
-            h.vm_created += 1
-            h.save()
-            return h
-
-    def _release_resource(self, host, vcpu, memory):
-        with transaction.atomic():
-            h = Host.objects.select_for_update().get(pk=host.pk)
-            h.cpu_allocated -= vcpu
-            h.mem_allocated -= memory
-            h.vm_created -= 1
-            if h.cpu_allocated < 0:
-                h.cpu_allocated = 0
-            if h.mem_allocated < 0:
-                h.mem_allocated = 0
-            if h.vm_created < 0:
-                h.vm_created = 0
-            h.save()
-            return h
 
     def start(self, obj):
         try:
@@ -198,7 +150,6 @@ class LibvirtDecorator(object):
 
     def create(self, group, image_snap, argv, creator, local_net=True):
         res,obj = self.define(group, image_snap, argv, local_net)
-        # print res, obj, 222222222222222222
         if res:
             try:
                 obj.creator = creator
@@ -207,63 +158,4 @@ class LibvirtDecorator(object):
                 print e
                 pass
             return self.start(obj)
-            # vm = obj.get_domain()
-            # if vm:
-            #     print vm, 1111111111111111111111111
-            #     return self.start(vm)
         return False, obj
-
-    def delete(self, vmobj):
-        vm = vmobj.get_domain()
-        if vm:
-            try:
-                vm.destroy()
-            except:
-                pass
-            vm.undefine()
-            res = self.imagemanager.archive_disk(vmobj.get_ceph(), vmobj.uuid)
-            print  'archive res:', res
-        if not vmobj.get_domain():
-            archive = VmArchive()
-            if archive.archiveFromVm(vmobj):
-                self.netmanager.release_mac(archive.mac, archive.uuid)
-                self._release_resource(vmobj.host, vmobj.vcpu, vmobj.mem)
-                vmobj.delete()
-                return True
-        return False
-
-    def _create_xml(self, argv):
-        xml_tpl = self.imagemanager.get_xml_tpl(argv['image'])
-        if xml_tpl == False:
-            raise Exception('xml not find.')
-        
-        res = xml_tpl % argv
-        print res
-        return res
-
-        # f = open(XML_TEMPLATE, 'r')
-        # res = f.read() % argv
-        # f.close()
-        # return res
-
-# def get_vm_list_from_host(host):
-#     if type(host) != Host:
-#         host = Host.objects.filter(ipv4=host)
-#         if host:
-#             host = host[0]
-#         else:
-#             return Vm.objects.none()
-#     return Vm.objects.filter(host=host)
-    
-# def get_vm_status(vm):
-#     conn = connection(vm.host.ipv4)
-#     vm = conn.lookupByUUID(vm.uuid)
-#     return vm.state()
-
-# def delete_by_uuid(vmid):
-#     vmobj = Vm.objects.filter(uuid=vmid)
-#     if vmobj:
-#         vmobj = vmobj[0]
-#         return delete(vmobj)
-#     return False
-

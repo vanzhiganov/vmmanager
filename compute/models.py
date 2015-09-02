@@ -2,11 +2,14 @@
 from django.db import models
 from uuid import UUID
 
+from django.db import transaction
+
 from django.contrib.auth.models import User
 
 from network.netmanager import NetManager
 
 from network.models import Vlan
+
 
 VM_NAME_LEN_LIMIT = 200
 
@@ -43,6 +46,57 @@ class Host(models.Model):
     def __unicode__(self):
         return self.ipv4
 
+    def claim_cpu(self, vcpu):
+        with transaction.atomic():
+            if self.cpu_allocated + vcpu > self.cpu_total:
+                return False
+            else:
+                self.cpu_allocated += vcpu
+                self.save()
+                return True
+
+    def release_cpu(self, vcpu):
+        with transaction.atomic():
+            self.cpu_allocated -= vcpu
+            if self.cpu_allocated < 0:
+                self.cpu_allocated = 0
+            self.save()
+
+    def claim_memory(self, memory):
+        with transaction.atomic():
+            if self.mem_allocated + memory + self.mem_reserved > self.mem_total:
+                return False
+            else:
+                self.mem_allocated += memory
+                self.save()
+                return True
+
+    def release_memory(self, memory):
+        with transaction.atomic():
+            self.mem_allocated -= memory
+            if self.mem_allocated < 0:
+                self.mem_allocated = 0
+            self.save()
+
+    def claim(self, vcpu, memory):
+        with transaction.atomic():
+            self.cpu_allocated += vcpu
+            self.mem_allocated += memory
+            self.vm_created += 1
+            self.save()
+    
+    def release(self, vcpu, memory):
+        with transaction.atomic():
+            self.cpu_allocated -= vcpu
+            self.mem_allocated -= memory
+            self.vm_created -= 1
+            if self.cpu_allocated < 0:
+                self.cpu_allocated = 0
+            if self.mem_allocated < 0:
+                self.mem_allocated = 0
+            if self.vm_created < 0:
+                self.vm_created = 0
+            self.save()
 
 class Vm(models.Model):
     host = models.ForeignKey(Host)
@@ -62,17 +116,11 @@ class Vm(models.Model):
 
     @property
     def status(self):
-        from libvirt_decorator import VM_STATE
         domain = self.get_domain()
-        if not domain:
-            return 'not exist'
-        try:
-            info = domain.info()
-            status = VM_STATE[info[0]]
-        except Exception, e:
-            status = 'error'
-        return status
-    
+        if domain:
+            return domain.status
+        return 'not exist'
+        
     @property
     def mac(self):
         return NetManager().get_mac_by_vmid(self.uuid)
@@ -90,20 +138,11 @@ class Vm(models.Model):
         return NetManager().get_br_by_vmid(self.uuid)
 
     def get_domain(self):
-        from libvirt_decorator import LibvirtDecorator
-        try:
-            conn = LibvirtDecorator()._connection(self.host.ipv4)
-        except Exception, e:
-            print e
-            return None
-        try:
-            if type(self.uuid) == UUID:
-                return conn.lookupByUUID(self.uuid)
-            else:
-                return conn.lookupByUUIDString(self.uuid)
-        except Exception, e:
-            print e
-            return None
+        from domain import Domain
+        d = Domain(self)
+        if d.exists():
+            return d
+        return None
 
     def show_mem(self):
         if self.mem < 1024:
@@ -150,7 +189,31 @@ class Vm(models.Model):
             return image[0].ceph
         return None
     
+    def update_cpu(self, vcpu):
+        res = False
+        if vcpu > self.vcpu:
+            if self.host.claim_cpu(vcpu - self.vcpu):
+                res = True
+        else:
+            self.host.release_cpu(self.vcpu - vcpu)
+            res = True
+        if res == True:
+            self.vcpu = vcpu
+            self.save()
+        return res
 
+    def update_memory(self, memory):
+        res = False
+        if memory > self.mem:
+            if self.host.claim_memory(memory - self.mem):
+                res = True
+        else:
+            self.host.release_memory(self.mem - memory)
+            res = True
+        if res == True:
+            self.mem = memory
+            self.save()
+        return res
 
 class VmArchive(models.Model):
     center_id   = models.IntegerField(null=True, blank=True)
