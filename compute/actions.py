@@ -1,6 +1,7 @@
 import libxml2
 from models import Vm 
 from libvirt_decorator import VM_STATE, LibvirtDecorator
+from domain import Domain
 class VmAction(object):
     def __init__(self, vmid):
         self.vmid = vmid
@@ -10,7 +11,7 @@ class VmAction(object):
             self.error = ''
         else:
             self.vmobj = None
-            self.error = 'Vm (%s) not exist.'
+            self.error = 'Vm (%s) not exist.' % vmid
 
     def get_detail(self):
         dicts = {}
@@ -43,13 +44,7 @@ class VmAction(object):
         if self.vmobj:
             domain = self.vmobj.get_domain()
             if domain:  
-                try:
-                    info = domain.info()
-                    status = VM_STATE[info[0]]
-                except Exception, e:
-                    self.error = e
-                    print e
-                    status = 'error'
+                status = domain.status
             else:
                 status = 'not exist'
 
@@ -73,9 +68,9 @@ class VmAction(object):
         info = {}
         if vm:
             vm = vm[0]
-            domain = vm.get_domain() 
+            domain = Domain(vm)
             
-            res = func(domain, vm)
+            res = func(domain)
             print res, after_status, vm.status
             if res and after_status and vm.status != after_status:
                 res = False
@@ -84,7 +79,7 @@ class VmAction(object):
         else:
             return False, 'Vmid error.'
 
-    def _vm_shutdown(self, domain, obj):
+    def _vm_shutdown(self, domain):
         if not domain:
             return True
             
@@ -97,7 +92,7 @@ class VmAction(object):
     def _vm_shutdown_after_status(self):
         return 'shut off'
 
-    def _vm_poweroff(self, domain, obj):
+    def _vm_poweroff(self, domain):
         try:
             domain.destroy()
             return True
@@ -107,7 +102,7 @@ class VmAction(object):
     def _vm_poweroff_after_status(self):
         return 'shut off'
 
-    def _vm_start(self, domain, obj):
+    def _vm_start(self, domain):
         try:
             domain.create()
             return True
@@ -117,7 +112,7 @@ class VmAction(object):
     def _vm_start_after_status(self):
         return 'running'
 
-    def _vm_reboot(self, domain, obj):
+    def _vm_reboot(self, domain):
         try:
             domain.reboot()
             return True
@@ -127,5 +122,10 @@ class VmAction(object):
     def _vm_reboot_after_status(self):
         return 'running'
 
-    def _vm_delete(self, domain, obj):
-        return LibvirtDecorator().delete(obj)
+    def _vm_delete(self, domain):
+        return domain.delete()
+
+
+
+
+

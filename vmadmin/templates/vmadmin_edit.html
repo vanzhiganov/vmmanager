@@ -1,0 +1,122 @@
+{%extends 'vmadmin_base.html'%}
+{%block base%}
+<style type="text/css">
+	.detail {
+	  margin-right: 0;
+	  margin-left: 0;
+	  /*background-color: #fff;*/
+	  border-color: #080808;
+	  border-width: 1px;
+	  border-radius: 4px 4px 0 0;
+	  /*-webkit-box-shadow: none;*/
+	  padding:20px;
+	  box-shadow: none;
+	}
+</style>
+
+<script type="text/javascript">
+  	window.vm_status_url = '/vmadmin/vm/status/';
+	window.vm_status_tag  = 'vm_status_';
+</script>
+
+<h2>EDIT VM
+<div class="btn-group">
+  <button type="button" class="btn btn-success" onclick="window.open('/vmadmin/vm/novnc/?vmid={{vmobj.uuid}}')">VNC</button>
+  <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="caret"></span>
+    <span class="sr-only">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu" style="min-width: 0px;">
+    <li><button class="btn btn-xs btn-primary" style="width:100px;margin-top:2px" onclick="vm_start('/vmadmin/vm/action/', '{{vmobj.uuid}}')">start</button></li>
+  <li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_shutdown('/vmadmin/vm/action/','{{vmobj.uuid}}')">shutdown</button></li>
+  <li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_poweroff('/vmadmin/vm/action/','{{vmobj.uuid}}')">poweroff</button></li>
+  <li><button class="btn btn-xs btn-warning" style="width:100px;margin-top:2px" onclick="vm_reboot('/vmadmin/vm/action/','{{vmobj.uuid}}')">reboot</button></li>
+  <li><button class="btn btn-xs btn-danger" style="width:100px;margin-top:2px" onclick="vm_delete('/vmadmin/vm/action/','{{vmobj.uuid}}')">delete</button></li>
+  </ul>
+</div>
+</h2>
+           	
+<form id="form" role="form"  class="form-horizontal"  method="post" action="" onsubmit ="getElementById('form_btn').disabled=true;getElementById('form_btn').value='submit...';return true;">
+
+    {% csrf_token %}
+    <input type="hidden" name="vmid" value="{{request.GET.vmid}}">
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Name</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.name}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Center</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.host.group.center}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Group</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.host.group}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Host</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.host}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">ipv4</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.ipv4}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Image</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" >{{vmobj.image_name}}</span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">Status</label>
+	    <div class="col-sm-10">
+	        <span  class="form-control" id="vm_status_{{vmobj.uuid}}">{{vmobj.status}}</span>
+	    </div>
+	</div>
+
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">cpu</label>
+	    <div class="col-sm-10">
+	        <input name="cpu" class="form-control" value="{{vmobj.vcpu}}" style="width:200px; display:inline" />
+	        <span style="padding-left:10px">
+	        {{error_cpu}}
+	        </span>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="name"  class="col-sm-2 control-label">memory</label>
+	    <div class="col-sm-10">
+	        <input name="mem"  class="form-control" value="{{vmobj.mem}}" style="width:200px; display:inline" />MB
+	        <span style="padding-left:10px">
+	        {{error_memory}}
+	        </span>
+	    </div>
+	</div>
+	
+	
+	
+	<div class="form-group">
+        <label for="content" class="col-sm-2 control-label"></label>
+        <div class="col-sm-9">
+        	
+        	<input id="form_btn" type="submit" class="btn btn-primary" value="apply" />
+           	
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+{%if warning%}
+alert('{{warning}}');
+{%endif%}
+
+</script>
+{%endblock%}
