@@ -1,0 +1,67 @@
+WebSocket server settings:
+  - Listen on :6080
+  - Flash security policy server
+  - Web server. Web root: /root/run/vmmanager/novnc
+  - No SSL/TLS support (no cert file)
+  - proxying from :6080 to targets in /root/run/vmmanager/novnc/vnc_tokens
+WARNING: no 'numpy' module, HyBi protocol will be slower
+159.226.50.245 - - [02/Sep/2015 23:03:13] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:03:13] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:03:13] 159.226.50.245: Path: '/websockify/?token=f8aaa978-3e15-4210-a5b6-0cdc7263a616'
+159.226.50.245 - - [02/Sep/2015 23:03:13] connecting to: 159.226.50.110:5900
+159.226.50.245 - - [02/Sep/2015 23:03:18] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:03:18] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:03:18] 159.226.50.245: Path: '/websockify/?token=bacc5bf0-b160-48cd-ae71-3a4c4fe0f175'
+159.226.50.245 - - [02/Sep/2015 23:03:18] connecting to: 10.0.50.235:5900
+159.226.50.245 - - [02/Sep/2015 23:04:43] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:04:43] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:04:43] 159.226.50.245: Path: '/websockify/?token=baa55382-ab98-4780-8105-cff430d150b9'
+159.226.50.245 - - [02/Sep/2015 23:04:43] connecting to: 10.0.50.236:5900
+159.226.50.245: ignoring socket not ready
+159.226.50.245: ignoring socket not ready
+159.226.50.245 - - [02/Sep/2015 23:09:48] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:09:48] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:09:48] 159.226.50.245: Path: '/websockify/?token=09b77878-02ff-443d-b2dd-420691d633b9'
+159.226.50.245 - - [02/Sep/2015 23:09:48] connecting to: 10.0.50.235:5900
+159.226.50.245: ignoring socket not ready
+159.226.50.245: ignoring socket not ready
+159.226.50.245: ignoring socket not ready
+159.226.50.245: ignoring socket not ready
+159.226.50.245 - - [02/Sep/2015 23:10:26] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:10:26] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:10:26] 159.226.50.245: Path: '/websockify/?token=12812841-69ce-4b90-a10b-9f9bf091fee4'
+159.226.50.245 - - [02/Sep/2015 23:10:26] connecting to: 10.0.50.235:5900
+159.226.50.245 - - [02/Sep/2015 23:11:15] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:11:15] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:11:15] 159.226.50.245: Path: '/websockify/?token=0f2e1d07-8943-4097-af75-64f9abb42c65'
+159.226.50.245 - - [02/Sep/2015 23:11:15] connecting to: 10.0.50.235:5900
+159.226.50.245 - - [02/Sep/2015 23:11:38] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:11:38] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:11:38] 159.226.50.245: Path: '/websockify/?token=c4da3a8e-6bed-460e-8a1b-b791b600c609'
+159.226.50.245 - - [02/Sep/2015 23:11:38] connecting to: 10.0.50.235:5900
+159.226.50.245 - - [02/Sep/2015 23:13:04] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:13:04] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:13:04] 159.226.50.245: Path: '/websockify/?token=1bf87722-205b-471d-9224-b48ae46b716b'
+159.226.50.245 - - [02/Sep/2015 23:13:04] connecting to: 10.0.50.235:5900
+159.226.50.245: ignoring socket not ready
+159.226.50.245: ignoring socket not ready
+159.226.50.245 - - [02/Sep/2015 23:13:47] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:13:47] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:13:47] 159.226.50.245: Path: '/websockify/?token=01908dcc-9b14-41a1-a55b-f583c6b4268e'
+159.226.50.245 - - [02/Sep/2015 23:13:47] connecting to: 10.0.50.229:5901
+159.226.50.245 - - [02/Sep/2015 23:14:02] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:14:02] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:14:02] 159.226.50.245: Path: '/websockify/?token=3f400b7b-c70f-4f81-b3d6-1e45d37d9b02'
+159.226.50.245 - - [02/Sep/2015 23:14:02] connecting to: 10.0.50.229:5901
+159.226.50.245: ignoring socket not ready
+159.226.50.245 - - [02/Sep/2015 23:14:27] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:14:27] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:14:27] 159.226.50.245: Path: '/websockify/?token=91b42765-9e97-452d-a713-a265fdc51c40'
+159.226.50.245 - - [02/Sep/2015 23:14:27] connecting to: 10.0.50.229:5901
+159.226.50.245: ignoring socket not ready
+159.226.50.245 - - [02/Sep/2015 23:14:34] 159.226.50.245: Plain non-SSL (ws://) WebSocket connection
+159.226.50.245 - - [02/Sep/2015 23:14:34] 159.226.50.245: Version hybi-13, base64: 'False'
+159.226.50.245 - - [02/Sep/2015 23:14:34] 159.226.50.245: Path: '/websockify/?token=cdbf99b7-6c3e-4e23-9d11-a7d9588f49bc'
+159.226.50.245 - - [02/Sep/2015 23:14:34] connecting to: 10.0.50.235:5900
+159.226.50.245: ignoring socket not ready
+159.226.50.245: ignoring socket not ready
